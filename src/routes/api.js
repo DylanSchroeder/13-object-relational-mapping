@@ -8,7 +8,7 @@ export default router;
 import Hero from '../models/hero';
 
 router.get('/api/heroes', (req, res)=> {
-  Hero.fetchAll()
+  Hero.find({})
     .then(heroes => {
       res.json(heroes);
     });
@@ -20,7 +20,9 @@ router.post('/api/heroes', (req, res)=> {
     res.end();
     return;
   }
-  var newHero = new Hero(req.body);
+  var newHero = new Hero({
+    ...req.body,
+  });
   newHero.save()
     .then(saved => {
       res.json(saved);
