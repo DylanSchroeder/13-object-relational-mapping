@@ -1,26 +1,13 @@
 'use strict';
 
-import Storage from '../storage';
-const heroStore = new Storage('Heroes');
+import mongoose, { Schema } from 'mongoose';
 
-export default class Hero {
-  constructor(obj) {
-    if (!obj) throw new Error('obj is required!');
+const heroSchema = Schema({
+  name: { type: String, required: true },
+  universe: { type: String },
+  power: { type: String },
+});
 
-    this.name = obj.name;
-    this.universe = obj.universe;
-    this.power = obj.power;
-  }
+const Hero = mongoose.models.hero || mongoose.model('hero', heroSchema);
 
-  save() {
-    return heroStore.save(this);
-  }
-
-  static fetchAll() {
-    return heroStore.getAll();
-  }
-
-  static findById(id) {
-    return heroStore.get(id);
-  }
-}
+export default Hero;
