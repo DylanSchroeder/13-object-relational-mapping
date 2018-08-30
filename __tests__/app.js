@@ -4,8 +4,15 @@ const request = require('supertest');
 import app from '../src/app';
 import Hero from '../src/models/hero';
 
+const mongoConnect = require('../src/util/mongo-connect');
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost/401-2018-notes';
+
 
 describe('app', () => {
+  beforeAll(()=> {
+    return mongoConnect(MONGODB_URI);
+  });
+
   it('responds with 404 for unknown path', ()=>{
     return request(app)
       .get('/404')
@@ -66,7 +73,13 @@ describe('app', () => {
           .get('/api/heroes')
           .expect(200)
           .expect('Content-Type', 'application/json; charset=utf-8')
-          .expect(savedHeroes);
+          .expect(({ body }) => {
+            expect(body.length).toBeGreaterThanOrEqual(savedHeroes.length);
+
+            savedHeroes.forEach(savedHero => {
+              expect(body.find(hero => hero._id === savedHero._id.toString())).toBeDefined();
+            });
+          });
       });
     });
     // it('can get /api/heroes/:id', ()=> {
@@ -90,7 +103,7 @@ describe('app', () => {
         .expect('Content-Type', 'application/json; charset=utf-8')
         .expect(response => {
           expect(response.body).toBeDefined();
-          expect(response.body.id).toBeDefined();
+          expect(response.body._id).toBeDefined();
           expect(response.body.name).toBe('Batman');
           expect(response.body.universe).toBe('DC');
           expect(response.body.power).toBe('rich');
